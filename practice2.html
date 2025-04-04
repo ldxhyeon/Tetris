@@ -7,102 +7,14 @@
   <title>Document</title>
 
   <style>
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 30px;
-    }
-
-    canvas {
-      background: #eee;
-    }
+    canvas { background: #eee; }
   </style>
 </head>
 
 <body>
-  <canvas id="test2" width="480" height="320">
+  <canvas id="myCanvas" height="320" width="480"></canvas>
 
-  </canvas>
-
-  <script>
-    const canvas = document.getElementById("test2");
-    const ctx = canvas.getContext("2d");
-
-    const ballRadius = 10;
-
-    /* 너비 / 2 가운데 */
-    let x = canvas.width / 2;
-    /* 높이 - 30 == 290 */
-    let y = canvas.height - 30;
-    /* 공의 속도 == 좌표를 얼마나 움직일것이냐~ */
-    let dx = 1;
-    let dy = -1;
-
-
-    function drawBall() {
-      /* 시작점 초기화 */
-      ctx.beginPath();
-      /* x == 가운데 y == 290 위치에 10지름의 원 그리기 */
-      ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-      /* 원 색상 속성 정의 */
-      ctx.fillStyle = "#0095DD";
-      /* 색상 채우기 */
-      ctx.fill();
-      /* 끝점 정의 */
-      ctx.closePath();
-
-
-
-    }
-
-    function draw() {
-      /* 영역 다 지우기 */
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      /* 함수 호출 1 */
-      drawBall();
-      /* x = 반값(240) + 2 == 242 */
-      x += dx;
-      /* y = 290 + -2 == 288 */
-      y += dy;
-
-
-      /* x는 240 + 2 > 480 - 10 */
-      /* 242 + 2 == 244 가 canvas 너비 - 원형 지름보다 크거나 242 + 2 == 244 가 원형 지름보다 작아야함 */
-      if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
-        /* dx는 반대로 튕겨져 나가게 함 */
-        dx = -dx;
-      }
-
-      if (y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
-        dy = -dy;
-      }
-    }
-
-    /* 10밀리초마다 호출 */
-    setInterval(draw, 10);
-
-    /* 사각형 */
-    // ctx.beginPath();
-    // ctx.rect(20, 40, 50, 50);
-    // ctx.fillStyle = "#FF0000";
-    // ctx.fill();
-    // ctx.closePath();
-
-    // /* 원형 */
-    // ctx.beginPath();
-    // ctx.arc(240, 160, 20, 0, Math.PI * 2, false);
-    // ctx.fillStyle = "green";
-    // ctx.fill();
-    // ctx.closePath();
-
-    // ctx.beginPath();
-    // ctx.rect(160, 10, 100, 40);
-    // ctx.strokeStyle = "rgba(0,0,255,0.5)";
-    // ctx.stroke();
-    // ctx.closePath();
-
-  </script>
+  <script src="practice2.js"></script>
 </body>
 
 </html>
