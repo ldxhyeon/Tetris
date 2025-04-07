@@ -121,7 +121,6 @@ function fixBlock() {
       }
     }
   }
-
   createBlock(); // 새로운 블럭 생성
 }
 
@@ -131,7 +130,7 @@ function draw() {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
 
-  // 바닥 블럭 먼저 그리기
+  /* 떨어진 블럭 */
   for (let i = 0; i < row; i++) {
     for (let j = 0; j < col; j++) {
       if (tetrisBoard[i][j]) { // 배열의 값이 있다면 블럭 그리기
@@ -143,12 +142,12 @@ function draw() {
     }
   }
 
-  
-  for (let i = 0; i < block.length; i++) { // 블럭 길이 1 또는 2
-    for (let j = 0; j < block[i].length; j++) { // 블럭 i의 길이 2,3,4
+  /* 떨어지는 블럭 */
+  for (let i = 0; i < block.length; i++) { // 블럭 i 길이 2
+    for (let j = 0; j < block[i].length; j++) { // 블럭 j의 길이 3 or 4
       if (block[i][j] == 1) {
         ctx.fillStyle = blockColorList[blockColor - 1]; // 리스트 - 1 컬러
-        ctx.fillRect((x + j) * blockSize, (y + i) * blockSize, blockSize, blockSize); // 1인 값 블럭 좌표 지정
+        ctx.fillRect((x + j) * blockSize, (y + i) * blockSize, blockSize, blockSize);
         ctx.strokeStyle = "#333";
         ctx.strokeRect((x + j) * blockSize, (y + i) * blockSize, blockSize, blockSize);
       }
