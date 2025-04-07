@@ -46,6 +46,7 @@ function keyUpHandler(e) {
     leftPressed = false;
   }
 }
+
 function collisionDetection() {
   for (var c = 0; c < brickColumnCount; c++) {
     for (var r = 0; r < brickRowCount; r++) {

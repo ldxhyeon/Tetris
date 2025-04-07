@@ -1,5 +1,15 @@
-const canvas = document.getElementById("tetirs");
+const canvas = document.getElementById("tetris");
 const ctx = canvas.getContext("2d");
+
+/* 게임판 */
+const row = 20; // 행 == height 600 / 30 == 20
+const col = 13; // 열 == width 390 / 13 == 13
+const blockSize = 30; // 블럭 사이즈
+
+// 바닥에 떨어지는 블록 저장
+// row 행 , col 열 만큼 배열을 만들고 값을 0으로 채움 == 20행 13열
+const tetrisBoard = Array.from({ length: row, }, () => Array(col).fill(0));
+console.table(tetrisBoard); // 테이블 확인
 
 
 /* z 블럭 */
@@ -43,80 +53,116 @@ const lBlock2 = [
   [1, 1, 1]
 ]
 
-// 블록 사이즈
-const blockSize = 30;
-
-/* 떨어지는 속도 */
-let dy = 2;
-/* 블럭 시작 높이 */
-let y = 130;
-
-// 블럭 떨어지는 속도
-
-/* 블록 배열 */
+/* 랜덤으로 꺼내기 위한 배열 */
 const blocks = [zBlock1, zBlock2, sBlock, oBlock, tBlock, lBlock1, lBlock2];
-console.log(blocks);
+
+/* 컬러 리스트의 값 꺼내서 담는 변수 */
+let blockColor
+
+/* 블럭 컬러 정의 */
+let blockColorList = [
+  "yellow",    // zBlock1
+  "#00B050",   // zBlock2
+  "#C0504D",   // sBlock
+  "#93CDDD",   // oBlock
+  "#FFC000",   // tBlock
+  "#558ED5",   // lBlock1
+  "#B3A2C7"    // lBlock2
+]
+
+let block;
+let x; // x 좌표
+let y; // y 좌표
 
 
-/* 랜덤 블록 변수 */
-const randomBlock = blocks[Math.floor(Math.random() * blocks.length)];
-console.log(randomBlock);
-
-/* 블록 색상 지정 */
-let blockColor;
-
-if (randomBlock == zBlock1) {
-  blockColor = "yellow";
-} else if (randomBlock == zBlock2) {
-  blockColor = "#00B050";
-} else if (randomBlock == sBlock) {
-  blockColor = "#C0504D";
-} else if (randomBlock == oBlock) {
-  blockColor = "#93CDDD";
-} else if (randomBlock == tBlock) {
-  blockColor = "#FFC000";
-} else if (randomBlock == lBlock1) {
-  blockColor = "#558ED5";
-} else if (randomBlock == lBlock2) {
-  blockColor = "#B3A2C7";
+/* 블럭 만들기 */
+function createBlock() {
+  const randomBlock = Math.floor(Math.random() * blocks.length); // 랜덤 숫자 뽑기(블럭 길이만큼)
+  // console.log(randomBlock);
+  block = blocks[randomBlock]; // 0 ~ 6까지 랜덤 숫자
+  console.log(block);
+  blockColor = randomBlock + 1 // 블럭 컬러 지정
+  x = Math.floor((col - block[0].length) / 2); // 가운데 좌표
+  y = 4; // y 좌표 4부터 시작
 }
 
-/* 보드판 중간 위치 */
-/* (전체너비 - 블럭 한개당 30px) / 2  */
-const boardWidth = (canvas.width - (randomBlock[0].length * blockSize)) / 2;
-console.log(boardWidth);
 
-/* 블록 그리기 함수 정의 */
+let dx = 0; // 수평 좌표
+let dy = 1; // 수직 좌표
+
+
+/* 충돌 감지 정의 */
+function checkCollision() {
+  for(let i = 0; i < block.length; i++) {
+    for(let j = 0; j < block[i].length; j++) { 
+      if(block[i][j] == 1) { // 2차원 배열 값이 1이면
+        const cx = x + j + dx;  // 블럭의 x 좌표 6
+        const cy = y + i + dy;  // 블럭의 y 좌표 6
+        // cx는 0보다 크고 col 보다 크거나 같아야하며,
+        // cy 는 row보다 크거나 같고 tetrisBoard[cx][cy] 위치에 0인 값이어야한다.
+        if(cx < 0 || cx >= col || cy >= row || tetrisBoard[cy][cx]) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+
+/* 보드판 좌표에 값 저장 */
+function fixBlock() {
+  for(let i = 0; i < block.length; i++) {
+    for(let j = 0; j < block[i].length; j++) {
+      if(block[i][j] == 1) {
+        tetrisBoard[y + i][x + j] = blockColor; // 해당 좌표에 색상코드 저장
+        console.table(tetrisBoard); // 테이블 확인
+      }
+    }
+  }
+
+  createBlock(); // 새로운 블럭 생성
+}
+
+
+/* 블럭 크기 및 생상 정의 */
 function draw() {
 
-  /* 캔버스 판 초기화 */
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = blockColor; // 블록 색깔
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
 
-  /* 2차원 배열에서 값이 1이면 블록 사이즈만큼 그리기 */
-  for (let row = 0; row < randomBlock.length; row++) { // 0 ~ 1
-    for (let col = 0; col < randomBlock[row].length; col++) { // 0 ~ 2 까지 또는 0 ~ 1
-      if (randomBlock[row][col] === 1) {
-        ctx.fillRect(boardWidth + col * blockSize, y + row * blockSize, blockSize, blockSize);
-        ctx.strokeStyle = "black";
-        ctx.strokeRect(boardWidth + col * blockSize, y + row * blockSize, blockSize, blockSize);
+  // 바닥 블럭 먼저 그리기
+  for (let i = 0; i < row; i++) {
+    for (let j = 0; j < col; j++) {
+      if (tetrisBoard[i][j]) { // 배열의 값이 있다면 블럭 그리기
+        ctx.fillStyle = blockColorList[tetrisBoard[i][j] - 1]; // ex) 4의 값이 있다면 -1 하여 ColorList 값 꺼내오기
+        ctx.fillRect(j * blockSize, i * blockSize, blockSize, blockSize);
+        ctx.strokeStyle = "#333";
+        ctx.strokeRect(j * blockSize, i * blockSize, blockSize, blockSize);
       }
     }
   }
 
-  /* y + 블럭 길이 * 블럭 사이즈 > */
-  if(y + randomBlock.length * blockSize > canvas.height) {
-    dy = 0;
-    for(let i = 0; i < blocks.length; i++) {
-      if(blocks[i] == randomBlock) {
-        break;
-      }
-    }
-  }else {
-    y += dy;
-  }
   
+  for (let i = 0; i < block.length; i++) { // 블럭 길이 1 또는 2
+    for (let j = 0; j < block[i].length; j++) { // 블럭 i의 길이 2,3,4
+      if (block[i][j] == 1) {
+        ctx.fillStyle = blockColorList[blockColor - 1]; // 리스트 - 1 컬러
+        ctx.fillRect((x + j) * blockSize, (y + i) * blockSize, blockSize, blockSize); // 1인 값 블럭 좌표 지정
+        ctx.strokeStyle = "#333";
+        ctx.strokeRect((x + j) * blockSize, (y + i) * blockSize, blockSize, blockSize);
+      }
+    }
+  }
+
+  if(checkCollision()) { 
+    fixBlock();
+  }else {
+    y++; // false이면 y좌표 증가
+  }
+
 }
 
-/* 캔버스에 블록 표시 */
-setInterval(draw, 10);
+createBlock();
+setInterval(draw, 300); // 비동기 함수 계속 실행
+
