@@ -57,7 +57,7 @@ const lBlock2 = [
 const blocks = [zBlock1, zBlock2, sBlock, oBlock, tBlock, lBlock1, lBlock2];
 
 /* 컬러 리스트의 값 꺼내서 담는 변수 */
-let blockColor
+let blockColor;
 
 /* 블럭 컬러 정의 */
 let blockColorList = [
@@ -91,13 +91,14 @@ let dx = 0; // 수평 좌표
 let dy = 1; // 수직 좌표
 
 
+// 아래에 값이 있는지 없는지 확인후 y++
 /* 충돌 감지 정의 */
 function checkCollision() {
   for(let i = 0; i < block.length; i++) {
     for(let j = 0; j < block[i].length; j++) { 
       if(block[i][j] == 1) { // 2차원 배열 값이 1이면
-        const cx = x + j + dx;  // 블럭의 x 좌표 6
-        const cy = y + i + dy;  // 블럭의 y 좌표 6
+        const cx = x + j + dx;  // 블럭의 x 좌표  5 , 6, 7
+        const cy = y + i + dy;  // 블럭의 y 좌표  6
         // cx는 0보다 크고 col 보다 크거나 같아야하며,
         // cy 는 row보다 크거나 같고 tetrisBoard[cx][cy] 위치에 0인 값이어야한다.
         if(cx < 0 || cx >= col || cy >= row || tetrisBoard[cy][cx]) {
@@ -117,7 +118,7 @@ function fixBlock() {
     for(let j = 0; j < block[i].length; j++) {
       if(block[i][j] == 1) {
         tetrisBoard[y + i][x + j] = blockColor; // 해당 좌표에 색상코드 저장
-        console.table(tetrisBoard); // 테이블 확인
+        // console.table(tetrisBoard); // 테이블 확인
       }
     }
   }
