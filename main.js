@@ -98,9 +98,11 @@ function checkCollision() {
     for(let j = 0; j < block[i].length; j++) { 
       if(block[i][j] == 1) { // 2차원 배열 값이 1이면
         const cx = x + j + dx;  // 블럭의 x 좌표  5 , 6, 7
-        const cy = y + i + dy;  // 블럭의 y 좌표  6
-        // cx는 0보다 크고 col 보다 크거나 같아야하며,
-        // cy 는 row보다 크거나 같고 tetrisBoard[cx][cy] 위치에 0인 값이어야한다.
+        const cy = y + i + dy;  // 블럭의 y 좌표  5,  5  5
+
+        // cx가 왼쪽 벽보다 작으면 true, cx가 col(벽 우측) 크거나 같으면 true,
+        // cy가 row(아래 바닥) 보다 크거나 같으면 true
+        // 테트리스 보드판 행과 열에 값이 있다면 true
         if(cx < 0 || cx >= col || cy >= row || tetrisBoard[cy][cx]) {
           return true;
         }
@@ -112,13 +114,27 @@ function checkCollision() {
 }
 
 
+let gameOver = false; // 게임 끝 설정
+
 /* 보드판 좌표에 값 저장 */
 function fixBlock() {
+
+  // 4번째 줄에 이미 블록이 있다면 게임 오버
+  for (let j = 0; j < block[0].length; j++) {
+    if (tetrisBoard[4][x + j]) { // y 4번에 값이 있다면 실행
+      gameOver = true;
+      alert("게임 끝!");
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
+      break;
+    }
+  }
+
   for(let i = 0; i < block.length; i++) {
     for(let j = 0; j < block[i].length; j++) {
       if(block[i][j] == 1) {
+        console.log(y,x);
         tetrisBoard[y + i][x + j] = blockColor; // 해당 좌표에 색상코드 저장
-        // console.table(tetrisBoard); // 테이블 확인
+        console.table(tetrisBoard); // 테이블 확인
       }
     }
   }
@@ -128,6 +144,11 @@ function fixBlock() {
 
 /* 블럭 크기 및 생상 정의 */
 function draw() {
+
+  // true이면 블럭 만들지 않음
+  if(gameOver) {
+    return;
+  }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
 
