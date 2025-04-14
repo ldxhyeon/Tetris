@@ -6,7 +6,7 @@ const row = 20; // 행 == height 600 / 30 == 20
 const col = 13; // 열 == width 390 / 13 == 13
 const blockSize = 30; // 블럭 사이즈
 
-// 바닥에 떨어지는 블록 저장
+// 게임판 배열
 // row 행 , col 열 만큼 배열을 만들고 값을 0으로 채움 == 20행 13열
 const tetrisBoard = Array.from({ length: row, }, () => Array(col).fill(0));
 console.table(tetrisBoard); // 테이블 확인
@@ -120,7 +120,7 @@ function fixBlock() {
 
   // 4번째 줄에 이미 블록이 있다면 게임 오버
   for (let j = 0; j < block[0].length; j++) {
-    if (tetrisBoard[4][x + j]) { // y 4번에 값이 있다면 실행
+    if (tetrisBoard[4][x + j]) { // y 4행에 값이 있다면 실행
       gameOver = true;
       alert("게임 끝!");
       ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
@@ -131,7 +131,6 @@ function fixBlock() {
   for(let i = 0; i < block.length; i++) {
     for(let j = 0; j < block[i].length; j++) {
       if(block[i][j] == 1) {
-        console.log(y,x);
         tetrisBoard[y + i][x + j] = blockColor; // 해당 좌표에 색상코드 저장
         console.table(tetrisBoard); // 테이블 확인
       }
@@ -174,7 +173,6 @@ function draw() {
       }
     }
   }
-  
 
   /* 충돌 감지 후 좌표 고정 및 y 증가 */
   if(checkCollision()) { 
@@ -182,38 +180,109 @@ function draw() {
   }else {
     y++; // false이면 y좌표 증가
   }
+}
 
-  
+// const tBlock = [
+//   [1, 1, 1],
+//   [0, 1, 0]
+// ]
+
+
+// const tBlock = [
+//   [0, 1]
+//   [1, 1]
+//   [0, 1]
+// 
+
+
+/* 회전 블록 함수 정의 */
+function rotateBlock() {
+
+  // 회전 블럭을 담을 배열 선언
+  let newBlock = [];
+
+  // 블럭의 열 수 만큼 행 만들기
+  for (let j = 0; j < block[0].length; j++) {
+    newBlock[j] = [];
+  }
+
+  for(let i = 0; i < block.length; i++) { // 행 2
+    for(let j = 0; j < block[i].length; j++) { // 열 3
+      // 블럭의 값을 newBlock 열 1번째 인덱스 부터 값을 적용
+      newBlock[j][block.length - 1 - i] = block[i][j]; 
+      console.log(newBlock);
+    }
+  }
+  // 새로운 블럭 배열 기존 배열 블럭에 저장
+  block = newBlock;
 }
 
 
+/* 하강 함수 정의 */
+function dropBlock() {
+  for(let i = 0; i < row; i++) { // 0 ~ 19(행)
+    if(!checkCollision()) {
+      y++;
+    }
+  }
+}
+
 /* 방향키 이벤트 */
-document.addEventListener('keydown',function(e){
-  switch(e.key) {
-    case "ArrowLeft":
-      dx = -1;
+document.addEventListener('keydown', (e) => {
+  switch(e.key) {  // key == Text , keycode == number
+    case "ArrowLeft": // 좌측 방향키
+      dx = -1; // 좌 한칸씩
       if(!checkCollision()) {
         x--;
       }
       dx = 0;
       break;
-    case "ArrowRight":
-      dx = 1;
+    case "ArrowRight": // 우 방향키
+      dx = 1; // 우측 한칸씩
       if(!checkCollision()) {
         x++;
       }
       dx = 0;
       break;
-    case "ArrowDown":
+    case "ArrowDown": // 아래 방향키
       if(!checkCollision()) {
-        y++;
+        y++; // 아래 한칸씩
       }
       break;
-    case "ArrowUp":
-      alert("up");
+    case "ArrowUp": // 위 방향키
+      rotateBlock(); // 회전
       break;
+    case " ": // 스페이스바
+      dropBlock(); // 하강
+      break;  
   }
-})
+});
+
+
+/* 버튼 이벤트 */
+document.getElementById("moveLeft").addEventListener("click", () => {
+  dx = -1; // 좌측
+  if(!checkCollision()) {
+    x--;
+  }
+  dx = 0;
+});
+
+document.getElementById("moveRight").addEventListener("click", () => {
+  dx = 1; // 우측
+  if(!checkCollision()) {
+    x++;
+  }
+  dx = 0;
+});
+
+document.getElementById("moveRotate").addEventListener("click", () => {
+  rotateBlock(); // 회전
+});
+
+// document.getElementById("moveDrop").addEventListener("click", () => {
+
+// });
 
 
 
