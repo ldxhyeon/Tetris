@@ -99,7 +99,6 @@ function checkCollision() {
       if(block[i][j] == 1) { // 2차원 배열 값이 1이면
         const cx = x + j + dx;  // 블럭의 x 좌표  5 , 6, 7
         const cy = y + i + dy;  // 블럭의 y 좌표  5,  5  5
-
         // cx가 왼쪽 벽보다 작으면 true, cx가 col(벽 우측) 크거나 같으면 true,
         // cy가 row(아래 바닥) 보다 크거나 같으면 true
         // 테트리스 보드판 행과 열에 값이 있다면 true
@@ -125,7 +124,7 @@ function fixBlock() {
       gameOver = true;
       alert("게임 끝!");
       ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
-      break;
+      return;
     }
   }
 
@@ -175,14 +174,48 @@ function draw() {
       }
     }
   }
+  
 
+  /* 충돌 감지 후 좌표 고정 및 y 증가 */
   if(checkCollision()) { 
     fixBlock();
   }else {
     y++; // false이면 y좌표 증가
   }
 
+  
 }
+
+
+/* 방향키 이벤트 */
+document.addEventListener('keydown',function(e){
+  switch(e.key) {
+    case "ArrowLeft":
+      dx = -1;
+      if(!checkCollision()) {
+        x--;
+      }
+      dx = 0;
+      break;
+    case "ArrowRight":
+      dx = 1;
+      if(!checkCollision()) {
+        x++;
+      }
+      dx = 0;
+      break;
+    case "ArrowDown":
+      if(!checkCollision()) {
+        y++;
+      }
+      break;
+    case "ArrowUp":
+      alert("up");
+      break;
+  }
+})
+
+
 
 createBlock();
 setInterval(draw, 300); // 비동기 함수 계속 실행
