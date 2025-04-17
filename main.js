@@ -8,7 +8,7 @@ const blockSize = 30; // 블럭 사이즈
 
 // 게임판 배열
 // row 행 , col 열 만큼 배열을 만들고 값을 0으로 채움 == 20행 13열
-const tetrisBoard = Array.from({ length: row, }, () => Array(col).fill(0));
+const tetrisBoard = Array.from({ length: row }, () => Array(col).fill(0));
 console.table(tetrisBoard); // 테이블 확인
 
 
@@ -56,9 +56,6 @@ const lBlock2 = [
 /* 랜덤으로 꺼내기 위한 배열 */
 const blocks = [zBlock1, zBlock2, sBlock, oBlock, tBlock, lBlock1, lBlock2];
 
-/* 컬러 리스트의 값 꺼내서 담는 변수 */
-let blockColor;
-
 /* 블럭 컬러 정의 */
 let blockColorList = [
   "yellow",    // zBlock1
@@ -70,7 +67,11 @@ let blockColorList = [
   "#B3A2C7"    // lBlock2
 ]
 
-let block;
+let blockColor; // 현재 블럭 컬러
+let blockColor2; // 미리 보기 블럭 컬러
+
+let block; // 현재 블럭
+let block2; // 미리 보기 블럭
 let x; // x 좌표
 let y; // y 좌표
 
@@ -87,9 +88,20 @@ function createBlock() {
 }
 
 
-let dx = 0; // 수평 좌표
-let dy = 1; // 수직 좌표
+// 다음 블럭이 무엇인지 미리 볼 수 있어야함
+// 그 블럭이 그려지면서 떨어져야함
 
+/* 미리보기 블럭 만들기 */
+function createBlock2() {
+  const randomBlock = Math.floor(Math.random() * blocks.length);
+  block2 = blocks[randomBlock];
+  blockColor2 = randomBlock + 1;
+}
+
+
+
+let dx = 0; // 수평
+let dy = 1; // 수직
 
 // 아래에 값이 있는지 없는지 확인후 y++
 /* 충돌 감지 정의 */
@@ -112,7 +124,6 @@ function checkCollision() {
   return false;
 }
 
-
 let gameOver = false; // 게임 끝 설정
 
 /* 보드판 좌표에 값 저장 */
@@ -123,7 +134,8 @@ function fixBlock() {
     if (tetrisBoard[4][x + j]) { // y 4행에 값이 있다면 실행
       gameOver = true;
       alert("게임 끝!");
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
+      location.reload();
+      // ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
       return;
     }
   }
@@ -136,9 +148,37 @@ function fixBlock() {
       }
     }
   }
+
+  deleteBlock();
   createBlock(); // 새로운 블럭 생성
 }
 
+
+
+// 한 행마다 값 검사
+// 삭제 후 행 추가
+/* 줄 없애기 함수 정의 */
+function deleteBlock() {
+
+  for (let i = 0; i < row; i++) {
+
+    let count = 0; // 행 0인 아닌 값 카운트
+
+    for (let j = 0; j < col; j++) {
+      if (tetrisBoard[i][j] != 0) {  // 0이 아닌 다른 숫자가 있으면
+        count++; // 카운트 ++
+      }
+      if(count == col) { // 카운트 갯수가 col 갯수와 같으면 그 행 제거
+        tetrisBoard.splice(i,1); // 행 삭제
+        score = score + 1000;
+        tetrisBoard.unshift(Array(col).fill(0)); // 행 추가
+      }
+    }
+  }
+}
+
+
+let score = 0; // 점수
 
 /* 블럭 크기 및 생상 정의 */
 function draw() {
@@ -149,6 +189,24 @@ function draw() {
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
+
+  /* 점수판 */
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(260, 10, 120, 30);
+  ctx.strokeStyle = "#333";
+  ctx.strokeRect(260, 10, 120, 30);
+  
+  // 점수 업데이트
+  ctx.fillStyle = "#000";
+  ctx.font = "15px Arial";
+  ctx.fillText("Score: " + score, 270, 32); 
+
+  /* 미리보기 블럭 */
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(10, 10, 150, 80);
+  ctx.strokeStyle = "#333";
+  ctx.strokeRect(10, 10, 150, 80);
+
 
   /* 떨어진 블럭 */
   for (let i = 0; i < row; i++) {
@@ -170,6 +228,18 @@ function draw() {
         ctx.fillRect((x + j) * blockSize, (y + i) * blockSize, blockSize, blockSize);
         ctx.strokeStyle = "#333";
         ctx.strokeRect((x + j) * blockSize, (y + i) * blockSize, blockSize, blockSize);
+      }
+    }
+  }
+
+
+  for (let i = 0; i < block2.length; i++) {
+    for (let j = 0; j < block2[i].length; j++) {
+      if (block2[i][j] === 1) {
+        ctx.fillStyle = blockColorList[blockColor2 - 1];
+        ctx.fillRect(20 + j * 20, 20 + i * 20, 20, 20);
+        ctx.strokeStyle = "#333";
+        ctx.strokeRect(20 + j * 20, 20 + i * 20, 20, 20);
       }
     }
   }
@@ -227,6 +297,7 @@ function dropBlock() {
   }
 }
 
+
 /* 방향키 이벤트 */
 document.addEventListener('keydown', (e) => {
   switch(e.key) {  // key == Text , keycode == number
@@ -280,12 +351,13 @@ document.getElementById("moveRotate").addEventListener("click", () => {
   rotateBlock(); // 회전
 });
 
-// document.getElementById("moveDrop").addEventListener("click", () => {
+document.getElementById("moveDrop").addEventListener("click", () => {
+  dropBlock(); // 하강
+});
 
-// });
 
 
-
-createBlock();
-setInterval(draw, 300); // 비동기 함수 계속 실행
+createBlock2(); // 미리보기용 블럭 먼저 생성
+createBlock();  // 그걸 현재 블럭으로 사용
+// setInterval(draw, 500); // 비동기 함수 계속 실행score
 
