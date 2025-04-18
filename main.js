@@ -67,38 +67,38 @@ let blockColorList = [
   "#B3A2C7"    // lBlock2
 ]
 
-let blockColor; // 현재 블럭 컬러
-let blockColor2; // 미리 보기 블럭 컬러
+let blockColor; // 현재 블럭 컬러 2
+let block; // 현재 블럭 2
 
-let block; // 현재 블럭
-let block2; // 미리 보기 블럭
+let block2; // 미리 보기 블럭 3
+let blockColor2; // 미리 보기 블럭 컬러 3
+
 let x; // x 좌표
 let y; // y 좌표
 
 
 /* 블럭 만들기 */
 function createBlock() {
-  const randomBlock = Math.floor(Math.random() * blocks.length); // 랜덤 숫자 뽑기(블럭 길이만큼)
-  // console.log(randomBlock);
-  block = blocks[randomBlock]; // 0 ~ 6까지 랜덤 숫자
-  console.log(block);
-  blockColor = randomBlock + 1 // 블럭 컬러 지정
+
+  block = block2; // block2 값 복사
+  blockColor = blockColor2;
+
   x = Math.floor((col - block[0].length) / 2); // 가운데 좌표
   y = 4; // y 좌표 4부터 시작
+
+  createBlock2();
 }
 
 
-// 다음 블럭이 무엇인지 미리 볼 수 있어야함
-// 그 블럭이 그려지면서 떨어져야함
+// 다음 블럭이 무엇인지 미리 볼 수 있어야 함
+// 그 블럭이 그려지면서 떨어져야 함
 
 /* 미리보기 블럭 만들기 */
 function createBlock2() {
-  const randomBlock = Math.floor(Math.random() * blocks.length);
+  const randomBlock = Math.floor(Math.random() * blocks.length); // 블럭 길이만큼 랜덤숫자
   block2 = blocks[randomBlock];
-  blockColor2 = randomBlock + 1;
+  blockColor2 = randomBlock + 1; // 블럭 컬러 지정
 }
-
-
 
 let dx = 0; // 수평
 let dy = 1; // 수직
@@ -134,8 +134,7 @@ function fixBlock() {
     if (tetrisBoard[4][x + j]) { // y 4행에 값이 있다면 실행
       gameOver = true;
       alert("게임 끝!");
-      location.reload();
-      // ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
       return;
     }
   }
@@ -183,14 +182,14 @@ let score = 0; // 점수
 /* 블럭 크기 및 생상 정의 */
 function draw() {
 
-  // true이면 블럭 만들지 않음
+  // 게임 끝나면
   if(gameOver) {
     return;
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스판 초기화
 
-  /* 점수판 */
+  /* 점수판 박스 */
   ctx.fillStyle = "#fff";
   ctx.fillRect(260, 10, 120, 30);
   ctx.strokeStyle = "#333";
@@ -201,12 +200,24 @@ function draw() {
   ctx.font = "15px Arial";
   ctx.fillText("Score: " + score, 270, 32); 
 
-  /* 미리보기 블럭 */
+  /* 미리보기 블럭 박스 */
   ctx.fillStyle = "#fff";
   ctx.fillRect(10, 10, 150, 80);
   ctx.strokeStyle = "#333";
   ctx.strokeRect(10, 10, 150, 80);
 
+
+  /* 미리보기 블럭 그리기 */
+  for(let i = 0; i < block2.length; i++) {
+    for(let j = 0; j < block2[i].length; j++) {
+      if(block2[i][j] == 1) {
+        ctx.fillStyle = blockColorList[blockColor2 - 1];
+        ctx.fillRect(20 + blockSize * j, 20 + blockSize * i, blockSize, blockSize); 
+        ctx.strokeStyle = "#333";
+        ctx.strokeRect(20 + blockSize * j, 20 + blockSize * i, blockSize, blockSize);
+      }
+    }
+  }
 
   /* 떨어진 블럭 */
   for (let i = 0; i < row; i++) {
@@ -232,17 +243,6 @@ function draw() {
     }
   }
 
-
-  for (let i = 0; i < block2.length; i++) {
-    for (let j = 0; j < block2[i].length; j++) {
-      if (block2[i][j] === 1) {
-        ctx.fillStyle = blockColorList[blockColor2 - 1];
-        ctx.fillRect(20 + j * 20, 20 + i * 20, 20, 20);
-        ctx.strokeStyle = "#333";
-        ctx.strokeRect(20 + j * 20, 20 + i * 20, 20, 20);
-      }
-    }
-  }
 
   /* 충돌 감지 후 좌표 고정 및 y 증가 */
   if(checkCollision()) { 
@@ -272,7 +272,7 @@ function rotateBlock() {
   let newBlock = [];
 
   // 블럭의 열 수 만큼 행 만들기
-  for (let j = 0; j < block[0].length; j++) {
+  for(let j = 0; j < block[0].length; j++) {
     newBlock[j] = [];
   }
 
@@ -339,7 +339,7 @@ document.getElementById("moveLeft").addEventListener("click", () => {
   dx = 0;
 });
 
-document.getElementById("moveRight").addEventListener("click", () => {
+document.getElementById("moveRight").addEventListener ("click", () => {
   dx = 1; // 우측
   if(!checkCollision()) {
     x++;
@@ -358,6 +358,6 @@ document.getElementById("moveDrop").addEventListener("click", () => {
 
 
 createBlock2(); // 미리보기용 블럭 먼저 생성
-createBlock();  // 그걸 현재 블럭으로 사용
-// setInterval(draw, 500); // 비동기 함수 계속 실행score
+createBlock();  // 현재 블럭 생성
+setInterval(draw, 500); // 비동기 함수 계속 실행
 
